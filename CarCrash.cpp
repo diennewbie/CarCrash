@@ -82,15 +82,105 @@ void printPlayerCar(){
     }
 }
 
-int collision(){
+void erasePlayerCar(){
+    for(int i = 0; i < 4; i++){
+        for(int j = 0; j < 4; j++){
+            gotoxy(j + carPos, i + 22);
+            cout<<" ";
+        }
+    }
+}
 
+int collision(){
+    if(enemyY[0] + 4 >= 23){
+        if(enemyX[0] + 4 - carPos >= 0 && enemyX[0] + 4 - carPos < 9){
+            return 1;
+        }
+    }
     return 0;
 }
 
+void printGameover(){
+    system("cls");
+    cout<<endl;
+    cout<<"/t/t---------GameOver---------/t/t";
+    getch();
+}
+
+void printScore(){
+    gotoxy(WIN_WIDTH + 7,5) ;
+    cout<<"Your Score is:"<<score<<endl;
+}
+
+void printInstructions(){
+    gotoxy(WIN_WIDTH + 7,13);
+    cout<<"How to play:";
+    gotoxy(WIN_WIDTH + 4,15);
+    cout<<"A - Left";
+    gotoxy(WIN_WIDTH + 4,16);
+    cout<<"D - Right";
+}
+
+void play(){
+    carPos = WIN_WIDTH / 2;
+    score = 0;
+
+    system("cls");
+    printBorder();
+    printScore();
+    printInstructions();
+    gotoxy(18,5);
+    cout<<"Press any key to play";
+    getch();
+    gotoxy(18,5);
+    cout<<"                     ";
+    while(1){
+        if(kbhit()){
+            char ch = getch();
+            if(ch == 'a' || ch == 'A'){
+                if(carPos > 16){
+                    carPos -= 4;
+                }
+            }
+            if(ch == 'd' || ch == 'D'){
+                if(carPos < 60 ){
+                    carPos += 4;
+                }
+            }
+            if(ch == 27){
+                break;
+            }
+        }
+        printPlayerCar();
+        printEnemy(0);
+        printEnemy(1);
+        if(collision(1)){
+            printGameover();
+            return;
+        }
+        Sleep(50);
+        erasePlayerCar();
+        eraseEnemy(0);
+        eraseEnemy(1);
+        if(enemyY[0] > SCREEN_HEIGHT - 4){
+            resetEnemy(0);
+            score++;
+            printScore();
+        }
+        if(enemyY[1] > SCREEN_HEIGHT - 4 ){
+            resetEnemy(0);
+            score++;
+            printScore();
+        }
+        
+    }
+    
+}
 
 int main()
 {
     srand(time(0));
-    system("cls");
-    printPlayerCar();
+    play();
+    system("pause >nul");
+    
 }
