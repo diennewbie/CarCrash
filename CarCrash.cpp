@@ -8,15 +8,13 @@
 
 using namespace std;
 
-int enemyX[3];
-int enemyY[3];
-bool enemyExist[3];
-char car[4][4] = {' ','[',']',' ',
-                  '[','|','|',']',
-                  ' ','|','|',' ',
-                  '[','|','|',']'};
-int carPos = WIN_WIDTH / 2;
 int score = 0;
+bool playAgain = true;
+struct makeEnemy{
+	int X;
+	int Y;
+	
+};
 
 void gotoxy(int x, int y){
     COORD coord;
@@ -43,69 +41,48 @@ void printBorder(){
     }
 }
 
-void printEnemy(int index){
-    if(enemyExist[index] == true){
-        gotoxy(enemyX[index], enemyY[index] + 0); cout<<"@@@@";
-        gotoxy(enemyX[index], enemyY[index] + 1); cout<<" @@ ";
-        gotoxy(enemyX[index], enemyY[index] + 2); cout<<"@@@@";
-        gotoxy(enemyX[index], enemyY[index] + 3); cout<<" @@ ";
-    }
+void printEnemy(int x ,int y){
+    gotoxy(x, y + 0); cout<<"@@@@";
+    gotoxy(x, y + 1); cout<<" @@ ";
+    gotoxy(x, y + 2); cout<<"@@@@";
+    gotoxy(x, y + 3); cout<<" @@ ";
 }
 
-void eraseEnemy(int index){
-    if(enemyExist[index] == true){
-        gotoxy(enemyX[index], enemyY[index] + 0); cout<<"    ";
-        gotoxy(enemyX[index], enemyY[index] + 1); cout<<"    ";
-        gotoxy(enemyX[index], enemyY[index] + 2); cout<<"    ";
-        gotoxy(enemyX[index], enemyY[index] + 3); cout<<"    ";
-    }
+void eraseEnemy(int x, int y){
+    gotoxy(x, y + 0); cout<<"    ";
+    gotoxy(x, y + 1); cout<<"    ";
+    gotoxy(x, y + 2); cout<<"    ";
+    gotoxy(x, y + 3); cout<<"    ";
 }
 
-void randomEnemy(int index){
-    enemyX[index] = 15 + rand() % (35);
-    enemyY[index] = 1;
-    enemyExist[index] = true;
+
+void printPlayerCar(int x, int y){
+    gotoxy(x, y);     cout << " || ";
+    gotoxy(x, y + 1); cout << "O||O";
+    gotoxy(x, y + 2); cout << " || ";
+    gotoxy(x, y + 3); cout << "O||O";
 }
 
-void resetEnemy(int index){
-    eraseEnemy(index);
-    enemyY[index] = 1;
-    randomEnemy(index);
+void erasePlayerCar(int x, int y){
+	gotoxy(x, y);     cout << "    ";
+    gotoxy(x, y + 1); cout << "    ";
+    gotoxy(x, y + 2); cout << "    ";
+    gotoxy(x, y + 3); cout << "    ";
 }
 
-void printPlayerCar(){
-    for(int i = 0; i < 4; i++){
-        for(int j = 0; j < 4; j++){
-            gotoxy(j + carPos, i + 22);
-            cout<<car[i][j];
-        }
-    }
-}
-
-void erasePlayerCar(){
-    for(int i = 0; i < 4; i++){
-        for(int j = 0; j < 4; j++){
-            gotoxy(j + carPos, i + 22);
-            cout<<" ";
-        }
-    }
-}
-
-int collision(){
-    if(enemyY[0] + 4 >= 23){
-        if(enemyX[0] + 4 - carPos >= 0 && enemyX[0] + 4 - carPos < 9){
-            return 1;
-        }
-    }
-    return 0;
-}
-
-void printGameover(){
+void printGameOver(){
     system("cls");
-    cout<<endl;
-    cout<<"/t/t---------GameOver---------/t/t";
+    gotoxy(45,5); cout<<" -------------------------- "; 
+	gotoxy(45,6); cout<<" |        Game Over!      | "; 
+	gotoxy(45,7); cout<<" --------------------------";
     getch();
+    gotoxy(45,5); cout<<" -------------------------------"; 
+	gotoxy(45,6); cout<<" |Press key to play again?(Y/N)|"; 
+	gotoxy(45,7); cout<<" -------------------------------";
+	char key = getch();
+	if(key == 'N' || key == 'n') playAgain = false;
 }
+
 
 void printScore(){
     gotoxy(WIN_WIDTH + 7,5) ;
@@ -115,72 +92,107 @@ void printScore(){
 void printInstructions(){
     gotoxy(WIN_WIDTH + 7,13);
     cout<<"How to play:";
-    gotoxy(WIN_WIDTH + 4,15);
-    cout<<"A - Left";
-    gotoxy(WIN_WIDTH + 4,16);
-    cout<<"D - Right";
+    gotoxy(WIN_WIDTH + 6, 15);
+    cout<<"W/w - Up";
+    gotoxy(WIN_WIDTH + 6, 16);
+    cout<<"A/a - Left";
+    gotoxy(WIN_WIDTH + 6, 17);
+    cout<<"S/s - Down";
+    gotoxy(WIN_WIDTH + 6, 18);
+    cout<<"D/d - Right";
 }
 
-void play(){
-    carPos = WIN_WIDTH / 2;
-    score = 0;
+bool checkCollision(int carX, int carY, int enemyX, int enemyY) {
+    if (enemyY + 5 > carY) {
+        if (enemyX < carX + 4 && enemyX + 4 > carX) {
+            return true;
+        }
+    }
+    return false;
+}
 
+
+void play(){
+	srand(time(0));
+	makeEnemy enemy1,enemy2;
+	
+	enemy1.X = 15 + rand() % 28;
+	enemy2.X = 45 + rand() % 28;
+	enemy1.Y = 0;
+	enemy2.Y = 0;
+    int carX = SCREEN_WIDTH / 2;
+    int carY = SCREEN_HEIGHT - 4;
+    score = 0;
     system("cls");
     printBorder();
     printScore();
     printInstructions();
-    gotoxy(18,5);
-    cout<<"Press any key to play";
-    getch();
-    gotoxy(18,5);
-    cout<<"                     ";
-    while(1){
-        if(kbhit()){
-            char ch = getch();
-            if(ch == 'a' || ch == 'A'){
-                if(carPos > 16){
-                    carPos -= 4;
-                }
-            }
-            if(ch == 'd' || ch == 'D'){
-                if(carPos < 60 ){
-                    carPos += 4;
-                }
-            }
-            if(ch == 27){
-                break;
-            }
-        }
-        printPlayerCar();
-        printEnemy(0);
-        printEnemy(1);
-        if(collision(1)){
-            printGameover();
-            return;
-        }
-        Sleep(50);
-        erasePlayerCar();
-        eraseEnemy(0);
-        eraseEnemy(1);
-        if(enemyY[0] > SCREEN_HEIGHT - 4){
-            resetEnemy(0);
-            score++;
-            printScore();
-        }
-        if(enemyY[1] > SCREEN_HEIGHT - 4 ){
-            resetEnemy(0);
-            score++;
-            printScore();
-        }
-        
-    }
-    
+	gotoxy(34, 5);cout<<"Press any key to start";
+	getch();
+	gotoxy(34, 5);cout<<"                      ";
+	while(true){
+		if(kbhit()){
+			char ch = getch();
+			if(ch == 27) break;
+			erasePlayerCar(carX, carY);
+			if( ch=='a' || ch=='A') {
+				if(carX > 17) carX -= 4;
+				
+			}
+			if( ch=='d' || ch=='D'){
+				if(carX < 69) carX += 4;
+			}
+			if( ch=='w' || ch=='W'){
+				if(carY > 0) carY -= 2;
+			}
+			if( ch=='s' || ch=='S'){
+				if(carY < SCREEN_HEIGHT - 4) carY += 2;
+			}
+		}
+		printPlayerCar(carX, carY);
+    	printEnemy(enemy1.X, enemy1.Y);
+    	printEnemy(enemy2.X, enemy2.Y);
+    	if(checkCollision(carX,carY,enemy1.X,enemy1.Y) || checkCollision(carX,carY,enemy2.X,enemy2.Y)) {
+    		printGameOver();
+    		break;
+		}
+    	Sleep(100);
+    	
+    	eraseEnemy(enemy1.X, enemy1.Y);
+    	eraseEnemy(enemy2.X, enemy2.Y);
+    	
+    	if(score >= 0){
+    		enemy1.Y+=1 + rand() % 2;
+    		enemy2.Y+=1 + rand() % 2;
+		} 
+    	if(enemy1.Y > SCREEN_HEIGHT - 4){
+    		enemy1.Y = 0;
+    		enemy1.X = 15 + rand() % 28;
+    		score++;
+    		printScore();
+		}
+		if(enemy2.Y > SCREEN_HEIGHT - 4){
+    		enemy2.Y = 0;
+    		enemy2.X = 45 + rand() % 28;
+    		score++;
+    		printScore();
+		}
+		
+	}
+	
 }
+
 
 int main()
 {
-    srand(time(0));
-    play();
+	gotoxy(45,5); cout<<"--------------------------"; 
+	gotoxy(45,6); cout<<"|     Are you ready?     |"; 
+	gotoxy(45,7); cout<<"--------------------------";
+    hideCursor(0,0);
+    srand( (unsigned)time(NULL)); 
     system("pause >nul");
-    
+    do{
+    	play();
+	} while(playAgain);
+	
 }
