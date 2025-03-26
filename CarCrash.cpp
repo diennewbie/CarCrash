@@ -185,14 +185,16 @@ void play(){
 
 int main()
 {
-	gotoxy(45,5); cout<<"--------------------------"; 
-	gotoxy(45,6); cout<<"|     Are you ready?     |"; 
-	gotoxy(45,7); cout<<"--------------------------";
-    hideCursor(0,0);
-    srand( (unsigned)time(NULL)); 
-    system("pause >nul");
-    do{
-    	play();
+	gotoxy(45,5); cout<<"-----------------------------"; 
+	gotoxy(45,6); cout<<"|       Are you ready?      |";
+	gotoxy(45,7); cout<<"|                           |";
+	gotoxy(45,8); cout<<"|(Press any key to continue)|"; 
+	gotoxy(45,9); cout<<"-----------------------------";
+    	hideCursor(0,0);
+    	srand( (unsigned)time(NULL)); 
+    	system("pause >nul");
+    	do{
+    		play();
 	} while(playAgain);
 	
 }
